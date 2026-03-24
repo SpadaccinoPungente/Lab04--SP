@@ -1,21 +1,21 @@
+
 class Dictionary:
-    def __init__(self, dict=[], language = ""):
-        self._dict = dict
+    def __init__(self, dictionary=None, language=""):
+        if dictionary is None:
+            dictionary = []
+        self._dictionary = dictionary
         self._language = language
 
-    def loadDictionary(self,path):
-        file_path = path
-        with open(file_path, 'r') as file:
-            for line in file:
-                value = line.strip()
-                self._dict.append(value.lower())
+    def loadDictionary(self, path):
+        with open(path, "r", encoding="utf-8") as infile:
+            for line in infile:
+                self.dictionary.append(line.strip().lower())
 
     def printAll(self):
-        for value in self._dict:
+        print(f"Stampa dizionario corrente in corso...\n")
+        for word in self.dictionary: print(word)
+        print("\nFinito!")
 
-            print(f" {value}")
-
-
-    @property
-    def dict(self):
-        return self._dict
+    @property # getter
+    def dictionary(self):
+        return self._dictionary

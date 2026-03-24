@@ -1,115 +1,119 @@
 import dictionary as d
 import richWord as rw
 
+
 class MultiDictionary:
-
     def __init__(self):
-        self._english = d.Dictionary([], "english")
-        self._italian = d.Dictionary([], "italian")
-        self._spanish = d.Dictionary([], "spanish")
+        # Initialize dictionaries
+        self._italian_dict = d.Dictionary(language="italian")
+        self._italian_dict.loadDictionary("resources/Italian.txt")
 
-        self._english.loadDictionary("resources/English.txt")
-        self._italian.loadDictionary("resources/Italian.txt")
-        self._spanish.loadDictionary("resources/Spanish.txt")
+        self._english_dict = d.Dictionary(language="english")
+        self._english_dict.loadDictionary("resources/English.txt")
+
+        self._spanish_dict = d.Dictionary(language="spanish")
+        self._spanish_dict.loadDictionary("resources/Spanish.txt")
 
     def printDic(self, language):
-        if language == "english":
-            self._english.printAll()
-        elif language == "italian":
-            self._italian.printAll()
-        elif language == "spanish":
-            self._spanish.printAll()
+        """
+        Prints the dictionary for the specified language.
+        """
+        if language == "Italian":
+            self._italian_dict.printAll()
+        elif language == "English":
+            self._english_dict.printAll()
+        elif language == "Spanish":
+            self._spanish_dict.printAll()
         else:
-            print("Language not supported")
+            print(f"Language '{language}' not supported.")
+
+    def _selectDictionary(self, language):
+        """
+        Helper method to retrieve the correct dictionary list based on language.
+        This avoids code repetition in the search algorithms.
+        """
+        if language == "Italian":
+            return self._italian_dict.dictionary
+        elif language == "English":
+            return self._english_dict.dictionary
+        elif language == "Spanish":
+            return self._spanish_dict.dictionary
+        else:
+            raise ValueError(f"Lingua '{language}' non supportata.")
 
     def searchWord(self, words, language):
-        # words is a list of strings
-        parole = []
+        """
+        Default search using the 'in' operator (__contains__).
+        Returns a list of RichWord objects.
+        """
+        rich_words = []
+        selected_dictionary = self._selectDictionary(language)
 
         for word in words:
-            word = word.lower()
-            found = False
-            richW = rw.RichWord(word)
-            if language == "english":
-                if self._english.dict.__contains__(word):
-                    found = True
-            elif language == "italian":
-                if self._italian.dict.__contains__(word):
-                    found = True
-            elif language == "spanish":
-                if self._spanish.dict.__contains__(word):
-                    found = True
-            if (found):
-                richW.corretta = True
+            rich_word = rw.RichWord(word)
 
-            parole.append(richW)
+            # Using Python's 'in' operator which leverages the __contains__ method under the hood
+            if rich_word.word in selected_dictionary:
+                rich_word.correct = True
+            else:
+                rich_word.correct = False
 
-        return parole
+            rich_words.append(rich_word)
+
+        return rich_words
 
     def searchWordLinear(self, words, language):
-        # words is a list of strings
-        parole = []
+        """
+        Linear search algorithm.
+        Iterates over all vocabulary elements starting from the first.
+        """
+        rich_words = []
+        selected_dictionary = self._selectDictionary(language)
 
         for word in words:
-            word = word.lower()
-            found = False
-            richW = rw.RichWord(word)
-            if language == "english":
-                for entry in self._english.dict:
-                    if entry == word:
-                        found = True
-            elif language == "italian":
-                for entry in self._italian.dict:
-                    if entry == word:
-                        found = True
-            elif language == "spanish":
-                for entry in self._spanish.dict:
-                    if entry == word:
-                        found = True
-            if (found):
-                richW.corretta = True
+            rich_word = rw.RichWord(word)
+            rich_word.correct = False  # Assume the word is incorrect initially
 
-            parole.append(richW)
+            # Linear search
+            for elem in selected_dictionary:
+                if rich_word.word == elem:
+                    rich_word.correct = True  # Found!
+                    break  # Stop searching this word
 
-        return parole
+            rich_words.append(rich_word)
+
+        return rich_words
 
     def searchWordDichotomic(self, words, language):
-        # words is a list of strings
-        parole = []
+        """
+        Dichotomic (binary) search algorithm.
+        Takes advantage of the alphabetically sorted dictionary by splitting
+        the search space in half at each iteration.
+        """
+        rich_words = []
+        selected_dictionary = self._selectDictionary(language)
 
         for word in words:
-            word = word.lower()
-            found = False
-            richW = rw.RichWord(word)
-            if language == "english":
-                currentDic = self._english.dict
-                found = dichotomicSearch(word, currentDic)
-            elif language == "italian":
-                currentDic = self._italian.dict
-                found = dichotomicSearch(word, currentDic)
-            elif language == "spanish":
-                currentDic = self._spanish.dict
-                found = dichotomicSearch(word, currentDic)
-            if (found):
-                richW.corretta = True
+            rich_word = rw.RichWord(word)
+            rich_word.correct = False
 
-            parole.append(richW)
+            # Binary search pointers
+            start = 0
+            end = len(selected_dictionary) - 1
 
-        return parole
+            while start <= end:
+                middle = (start + end) // 2  # Recalculated at each iteration
 
+                if rich_word.word == selected_dictionary[middle]:
+                    rich_word.correct = True  # Found, stop the search
+                    break
+                elif rich_word.word < selected_dictionary[middle]:
+                    # The word comes before alphabetically: discard the second half
+                    end = middle - 1
+                else:
+                    # The word comes after alphabetically: discard the first half
+                    start = middle + 1
 
-def dichotomicSearch(word, currentDic):
-    start = 0
-    end = len(currentDic)
+            rich_words.append(rich_word)
 
-    while (start != end):
-        mean = start + int((end - start)/2)
-        currentW = currentDic[mean]
-        if word == currentW:
-            return True
-        elif word > currentW:  # in python < applied to strings gives True if the first string is before in lexicographic order
-            start = mean+1
-        else:
-            end = mean
-
-    return False
+        return rich_words
