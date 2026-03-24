@@ -130,6 +130,7 @@ class View(object):
         """
         Method called when a language is selected from the Dropdown
         """
+
         # Create the output message
         msg = f"Lingua selezionata correttamente: {self.__dd_language.value}"
 
@@ -143,6 +144,7 @@ class View(object):
         """
         Visual feedback when the search modality is changed
         """
+
         # Create the output message
         msg = f"Modalità di ricerca selezionata: {self.__dd_modality.value}"
 
@@ -170,8 +172,11 @@ class View(object):
         modality = self.__dd_modality.value
 
         if self.__controller is not None:
-            # Format strings and call the controller
-            language_formatted = language.lower()
+            # MAPPA DI TRADUZIONE: converte l'input UI (Italiano) nel formato di model (inglese minuscolo)
+            language_map = {"Italiano": "Italian", "Inglese": "English", "Spagnolo": "Spanish"}
+
+            # Prende la lingua formattata dalla mappa
+            language_formatted = language_map[language]
 
             wrong_rws_str, time_elapsed = self.__controller.handleSentence(sentence, language_formatted, modality)
 

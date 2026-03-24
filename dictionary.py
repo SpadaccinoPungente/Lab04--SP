@@ -11,11 +11,6 @@ class Dictionary:
             for line in infile:
                 self.dictionary.append(line.strip().lower())
 
-    def printAll(self):
-        print(f"Stampa dizionario corrente in corso...\n")
-        for word in self.dictionary: print(word)
-        print("\nFinito!")
-
     @property # getter
     def dictionary(self):
         return self._dictionary

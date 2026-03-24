@@ -14,19 +14,6 @@ class MultiDictionary:
         self._spanish_dict = d.Dictionary(language="spanish")
         self._spanish_dict.loadDictionary("resources/Spanish.txt")
 
-    def printDic(self, language):
-        """
-        Prints the dictionary for the specified language.
-        """
-        if language == "Italian":
-            self._italian_dict.printAll()
-        elif language == "English":
-            self._english_dict.printAll()
-        elif language == "Spanish":
-            self._spanish_dict.printAll()
-        else:
-            print(f"Language '{language}' not supported.")
-
     def _selectDictionary(self, language):
         """
         Helper method to retrieve the correct dictionary list based on language.

@@ -14,64 +14,37 @@ class SpellChecker:
         Processes the input sentence, identifies wrong words,
         and calculates the time elapsed for the search.
         """
+
         # Clean the input text and convert it to lowercase
         sentence = replaceChars(sentence.lower())
 
         # Split the sentence into a list of words
         words = sentence.split()
 
-        # String to accumulate misspelled words
-        wrong_words = " - "
-
+        # Execute the chosen search algorithm and measure ONLY its execution time
         match modality:
             case "Default":
                 t1 = time.time()
                 rich_words = self._multiDic.searchWord(words, language)
-
-                for rw in rich_words:
-                    if not rw.correct:
-                        wrong_words += str(rw) + " - "
-
                 t2 = time.time()
-                return wrong_words, t2 - t1
 
             case "Linear":
                 t1 = time.time()
                 rich_words = self._multiDic.searchWordLinear(words, language)
-
-                for rw in rich_words:
-                    if not rw.correct:
-                        wrong_words += str(rw) + " - "
-
                 t2 = time.time()
-                return wrong_words, t2 - t1
 
             case "Dichotomic":
                 t1 = time.time()
                 rich_words = self._multiDic.searchWordDichotomic(words, language)
-
-                for rw in rich_words:
-                    if not rw.correct:
-                        wrong_words += str(rw) + " - "
-
                 t2 = time.time()
-                return wrong_words, t2 - t1
 
-            case _: return None
+            case _: return None, 0
 
-    def printMenu(self):
-        """
-        Prints the CLI menu (kept for backwards compatibility with Lab 03).
-        """
-        print("______________________________\n" +
-              "      SpellChecker 101\n" +
-              "______________________________\n " +
-              "Seleziona la lingua desiderata\n"
-              "1. Italiano\n" +
-              "2. Inglese\n" +
-              "3. Spagnolo\n" +
-              "4. Exit\n" +
-              "______________________________\n")
+        # Build the string of wrong words OUTSIDE the match block
+        # Using a Pythonic generator expression and .join() for cleaner and faster string building
+        wrong_words = " ".join([str(rw) for rw in rich_words if not rw.correct])
+
+        return wrong_words, t2 - t1
 
 
 def replaceChars(text):
